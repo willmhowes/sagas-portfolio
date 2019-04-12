@@ -4,15 +4,52 @@ import './index.css';
 import App from './components/App/App.js';
 import registerServiceWorker from './registerServiceWorker';
 import { createStore, combineReducers, applyMiddleware } from 'redux';
+import axios from 'axios';
 // Provider allows us to use redux within our react app
 import { Provider } from 'react-redux';
 import logger from 'redux-logger';
 // Import saga middleware
 import createSagaMiddleware from 'redux-saga';
+import { takeEvery, put } from 'redux-saga/effects';
+
+function* getProjects() {
+    try {
+        const getResponse = yield axios.get('/portfolio/projects');
+        put({ type: 'SET_PROJECTS', payload: getResponse.data });
+    }
+    catch (error) {
+        alert('Error getting portfolio');
+        console.log('Error getting portfolio:', error);
+    }
+}
+
+function* getTags() {
+    try {
+        const getResponse = yield axios.get('/portfolio/tags');
+        put({ type: 'SET_TAGS', payload: getResponse.data });
+    }
+    catch (error) {
+        alert('Error getting portfolio');
+        console.log('Error getting portfolio:', error);
+    }
+}
+
+function* getProjectTags() {
+    try {
+        const getResponse = yield axios.get('/portfolio/project%tags');
+        put({ type: 'SET_PROJECT_TAGS', payload: getResponse.data });
+    }
+    catch (error) {
+        alert('Error getting portfolio');
+        console.log('Error getting portfolio:', error);
+    }
+}
 
 // Create the rootSaga generator function
 function* rootSaga() {
-
+    yield takeEvery('GET_PROJECTS', getProjects);
+    yield takeEvery('GET_TAGS', getTags);
+    yield takeEvery('GET_PROJECT_TAGS', getProjectTags);
 }
 
 // Create sagaMiddleware
@@ -38,11 +75,22 @@ const tags = (state = [], action) => {
     }
 }
 
+// Used to store references between projects and tags
+const project_tags = (state = [], action) => {
+    switch (action.type) {
+        case 'SET_PROJECT_TAGS':
+            return action.payload;
+        default:
+            return state;
+    }
+}
+
 // Create one store that all components can use
 const storeInstance = createStore(
     combineReducers({
         projects,
         tags,
+        project_tags,
     }),
     // Add sagaMiddleware to our store
     applyMiddleware(sagaMiddleware, logger),
@@ -51,6 +99,6 @@ const storeInstance = createStore(
 // Pass rootSaga into our sagaMiddleware
 sagaMiddleware.run(rootSaga);
 
-ReactDOM.render(<Provider store={storeInstance}><App /></Provider>, 
+ReactDOM.render(<Provider store={storeInstance}><App /></Provider>,
     document.getElementById('root'));
 registerServiceWorker();
