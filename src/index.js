@@ -34,22 +34,10 @@ function* getTags() {
     }
 }
 
-function* getProjectTags() {
-    try {
-        const getResponse = yield axios.get('/portfolio/project%tags');
-        put({ type: 'SET_PROJECT_TAGS', payload: getResponse.data });
-    }
-    catch (error) {
-        alert('Error getting portfolio');
-        console.log('Error getting portfolio:', error);
-    }
-}
-
 // Create the rootSaga generator function
 function* rootSaga() {
     yield takeEvery('GET_PROJECTS', getProjects);
     yield takeEvery('GET_TAGS', getTags);
-    yield takeEvery('GET_PROJECT_TAGS', getProjectTags);
 }
 
 // Create sagaMiddleware
@@ -75,22 +63,11 @@ const tags = (state = [], action) => {
     }
 }
 
-// Used to store references between projects and tags
-const project_tags = (state = [], action) => {
-    switch (action.type) {
-        case 'SET_PROJECT_TAGS':
-            return action.payload;
-        default:
-            return state;
-    }
-}
-
 // Create one store that all components can use
 const storeInstance = createStore(
     combineReducers({
         projects,
         tags,
-        project_tags,
     }),
     // Add sagaMiddleware to our store
     applyMiddleware(sagaMiddleware, logger),
