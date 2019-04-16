@@ -15,7 +15,7 @@ import { takeEvery, put } from 'redux-saga/effects';
 function* getProjects() {
     try {
         const getResponse = yield axios.get('/portfolio/projects');
-        put({ type: 'SET_PROJECTS', payload: getResponse.data });
+        yield put({ type: 'SET_PROJECTS', payload: getResponse.data });
     }
     catch (error) {
         alert('Error getting portfolio');
@@ -26,7 +26,7 @@ function* getProjects() {
 function* getTags() {
     try {
         const getResponse = yield axios.get('/portfolio/tags');
-        put({ type: 'SET_TAGS', payload: getResponse.data });
+        yield put({ type: 'SET_TAGS', payload: getResponse.data });
     }
     catch (error) {
         alert('Error getting portfolio');
